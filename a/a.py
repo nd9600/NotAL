@@ -35,11 +35,35 @@ label_table = {}
 
 def resolve_labels(lines):
     tokens = []
+    patching_list = []
     for index, line in enumerate(lines):
-        print "\n#", index, line
-        split_line = line.split(" ")
-        for innerIndex, item in enumerate(split_line):
-            print innerIndex, item
+        if (len(line) == 0):
+            continue
+            
+        split_line = line.lstrip(" ").split(" ")
+        if (split_line[0] == "."):
+            labels_info = split_line[1].split(":")
+            label_table[labels_info[0].lstrip(" ")] = (3 * index) + 0 
+                
+    for index, line in enumerate(lines):
+        if (len(line) == 0):
+            continue
+        
+        split_line = line.lstrip(" ").split(" ")
+        if (split_line[0] != "."):
+            print "\n#", index, line
+            print "len:", len(split_line)
+            for innerIndex, item in enumerate(split_line):
+                print innerIndex, item
+                if item in label_table:
+                    tokens.append(label_table[item])
+                else:
+                    tokens.append(item)
+        else:
+            labels_data = split_line[1].split(":")[1]
+            tokens.append(labels_data)
+            
+    return tokens
         
     """
     for index, line in enumerate(lines):
@@ -69,15 +93,20 @@ def lex(input_file):
     original_lines = input_file.readlines()
     
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
-    resolved_lines = resolve_labels(stripped_lines)
-    split_lines =  [line.split(" ") for line in resolved_lines]
-    int_split_lines = [map(int, line) for line in split_lines]
-    token_stream = [item for innerlist in int_split_lines for item in innerlist]
+    non_blank_lines = [line for line in stripped_lines[:] if (len(line) > 0)]
+    resolved_lines = resolve_labels(non_blank_lines)
+    #split_lines =  [line.split(" ") for line in resolved_lines]
+    #int_split_lines = [map(int, line) for line in split_lines]
+    #token_stream = [item for innerlist in int_split_lines for item in innerlist]
     
     
-    print("lexing")
+    print("\nlexing")
+    print("original_lines: {0}".format(original_lines))
     print("stripped_lines: {0}".format(stripped_lines))
+    print("non_blank: {0}".format(non_blank_lines))
     print("resolved_lines: {0}".format(resolved_lines))
+    print("label_table: {0}".format(label_table))
+    return
     print("split_lines: {0}".format(split_lines))
     print("int_split_lines: {0}".format(int_split_lines))
     print("token_stream: {0}".format(token_stream))
@@ -127,7 +156,7 @@ def run(memory):
 def execute_file(file_name):
     with open(file_name, 'r') as input_file:
         token_stream = lex(input_file)
-        run(token_stream)      
+        #run(token_stream)      
         
 if len(argv) > 1:
     execute_file(argv[1])
