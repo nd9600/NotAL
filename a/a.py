@@ -63,6 +63,7 @@ def lex(input_file):
     split_lines =  [line.split(" ") for line in resolved_lines]
     token_stream = [map(int, line) for line in split_lines]
     
+    print("lexing")
     print("stripped_lines: {0}".format(stripped_lines))
     print("resolved_lines: {0}".format(resolved_lines))
     print("split_lines: {0}".format(split_lines))
@@ -70,9 +71,30 @@ def lex(input_file):
     
     return token_stream
     
-def run(token_stream):
-    memory = [0] * len(token_stream)
-    print memory
+    
+# ? ; next line
+# a ; same as a a ?
+# a b ; same as a b ?
+def run(memory):    
+    print("\nrunning")
+    print("memory: {0}".format(memory))
+    
+    pc = 0;
+    while (pc < len(memory)):
+        line = memory[pc]
+        number_of_tokens = len(line)
+        
+        a = line[0]
+        
+        if number_of_tokens >= 2:
+            b = line[1]
+        else:
+            b = a
+        
+        print("\na: {0}".format(a))
+        print("b: {0}".format(b))
+        
+        pc = pc + 1
 
 def execute_file(file_name):
     with open(file_name, 'r') as input_file:
