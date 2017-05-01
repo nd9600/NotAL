@@ -34,11 +34,20 @@ from sys import argv
 label_table = {}
 
 def resolve_labels(lines):
-    for line in lines:
+    tokens = []
+    for index, line in enumerate(lines):
+        print "\n#", index, line
+        split_line = line.split(" ")
+        for innerIndex, item in enumerate(split_line):
+            print innerIndex, item
+        
+    """
+    for index, line in enumerate(lines):
         if (len(line) == 0):
             continue
         
         line = line.lstrip(" ")
+        print index, line
         if (line[0] == "."):
             line = line.lstrip(".").lstrip(" ")
             split_line = line.split(":")
@@ -54,6 +63,7 @@ def resolve_labels(lines):
         
         resolved_lines.append(line)
     return resolved_lines
+    """
 
 def lex(input_file):
     original_lines = input_file.readlines()
@@ -61,12 +71,15 @@ def lex(input_file):
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
     resolved_lines = resolve_labels(stripped_lines)
     split_lines =  [line.split(" ") for line in resolved_lines]
-    token_stream = [map(int, line) for line in split_lines]
+    int_split_lines = [map(int, line) for line in split_lines]
+    token_stream = [item for innerlist in int_split_lines for item in innerlist]
+    
     
     print("lexing")
     print("stripped_lines: {0}".format(stripped_lines))
     print("resolved_lines: {0}".format(resolved_lines))
     print("split_lines: {0}".format(split_lines))
+    print("int_split_lines: {0}".format(int_split_lines))
     print("token_stream: {0}".format(token_stream))
     
     return token_stream
@@ -88,13 +101,28 @@ def run(memory):
         
         if number_of_tokens >= 2:
             b = line[1]
+            if number_of_tokens == 3:
+                c = line[2]
+            else:
+                c = "?"
         else:
             b = a
         
         print("\na: {0}".format(a))
         print("b: {0}".format(b))
+        print("c: {0}".format(c))
         
-        pc = pc + 1
+        if (c == -1):
+            print("input")
+        elif (c == -2):
+            print(memory[a])
+        #else:
+        #    
+        #memory[b] = memory[b] - memory[a]
+        #if (memory[b] == 0):
+        #    pc = c
+        #else:
+        #    pc = pc + 1
 
 def execute_file(file_name):
     with open(file_name, 'r') as input_file:
