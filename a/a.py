@@ -60,17 +60,24 @@ def lex(input_file):
     
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
     resolved_lines = resolve_labels(stripped_lines)
+    split_lines =  [line.split(" ") for line in resolved_lines]
+    token_stream = [map(int, line) for line in split_lines]
     
+    print("stripped_lines: {0}".format(stripped_lines))
+    print("resolved_lines: {0}".format(resolved_lines))
+    print("split_lines: {0}".format(split_lines))
+    print("token_stream: {0}".format(token_stream))
     
+    return token_stream
     
-    print original_lines
-    print stripped_lines
-    print resolved_lines
-    print label_table
+def run(token_stream):
+    memory = [0] * len(token_stream)
+    print memory
 
 def execute_file(file_name):
     with open(file_name, 'r') as input_file:
         token_stream = lex(input_file)
-
+        run(token_stream)      
+        
 if len(argv) > 1:
     execute_file(argv[1])
