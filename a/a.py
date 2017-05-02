@@ -33,82 +33,71 @@ from sys import argv
 
 label_table = {}
 
-def resolve_labels(lines):
+def generate_token_stream(lines):
     tokens = []
-    patching_list = []
-    for index, line in enumerate(lines):
+    patching_dict = {}
+    currentPosition = 0
+    
+    for line in lines:
         if (len(line) == 0):
-            continue
-            
-        split_line = line.lstrip(" ").split(" ")
-        if (split_line[0] == "."):
-            labels_info = split_line[1].split(":")
-            label_table[labels_info[0].lstrip(" ")] = (3 * index) + 0 
-                
-    for index, line in enumerate(lines):
-        if (len(line) == 0):
-            continue
-        
-        split_line = line.lstrip(" ").split(" ")
-        if (split_line[0] != "."):
-            print "\n#", index, line
-            print "len:", len(split_line)
-            for innerIndex, item in enumerate(split_line):
-                print innerIndex, item
-                if item in label_table:
-                    tokens.append(label_table[item])
-                else:
-                    tokens.append(item)
-        else:
-            labels_data = split_line[1].split(":")[1]
-            tokens.append(labels_data)
-            
-    return tokens
-        
-    """
-    for index, line in enumerate(lines):
-        if (len(line) == 0):
-            continue
-        
-        line = line.lstrip(" ")
-        print index, line
-        if (line[0] == "."):
-            line = line.lstrip(".").lstrip(" ")
-            split_line = line.split(":")
-            label_table[split_line[0]] = split_line[1]
-            
-    resolved_lines = []
-            
-    for index, line in enumerate(lines):
-        if (len(line) == 0 or line.lstrip(" ")[0] == "."):
             continue        
-        for key in label_table:
-            line = line.replace(key, label_table[key])
         
-        resolved_lines.append(line)
-    return resolved_lines
-    """
+        #if label definition found, put label and position in label table
+        if (line.lstrip(" ")[0] == "."):
+            label_info = line.strip(" ")[1:].strip(" ").split(":")
+            label = label_info[0].strip(" ")
+            
+            label_table[label] = currentPosition
+            
+            #if the label definition has data, it is a variable
+            #otherwise, it's just a position
+            if (len(label_info) > 1):
+                label_data = label_info[1].strip(" ")
+                
+                try: #label_data is an int 
+                    tokens.append(int(label_data))
+                    currentPosition = currentPosition + 1 
+                except ValueError: #label_data is a string   
+                    for character in label_data:
+                        tokens.append(ord(character))
+                        currentPosition = currentPosition + 1 
+        else:
+            split_line = line.strip(" ").split(" ")
+            for item in split_line:
+                try: 
+                    tokens.append(int(item))
+                    currentPosition = currentPosition + 1 
+                except ValueError: # is a label, put currentPosition in patching_dict
+                    tokens.append(0)
+                    patching_dict[currentPosition] = item
+                    currentPosition = currentPosition + 1  
+    
+    #patch labels
+    #position is the position in the tokens that needs to be patched
+    #patching_dict[position] gives the label it needs to patch from
+    #label_table[label] gives the position it needs to patch to        
+    for position in patching_dict:
+        tokens[position] = label_table[patching_dict[position]]
+      
+    return tokens
 
 def lex(input_file):
     original_lines = input_file.readlines()
     
+    #strip newlines from the end of lines
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
-    non_blank_lines = [line for line in stripped_lines[:] if (len(line) > 0)]
-    resolved_lines = resolve_labels(non_blank_lines)
-    #split_lines =  [line.split(" ") for line in resolved_lines]
-    #int_split_lines = [map(int, line) for line in split_lines]
-    #token_stream = [item for innerlist in int_split_lines for item in innerlist]
     
+    #remove blank lines
+    non_blank_lines = [line for line in stripped_lines[:] if (len(line) > 0)]
+    
+    #
+    token_stream = generate_token_stream(non_blank_lines)    
     
     print("\nlexing")
     print("original_lines: {0}".format(original_lines))
     print("stripped_lines: {0}".format(stripped_lines))
     print("non_blank: {0}".format(non_blank_lines))
-    print("resolved_lines: {0}".format(resolved_lines))
     print("label_table: {0}".format(label_table))
-    return
-    print("split_lines: {0}".format(split_lines))
-    print("int_split_lines: {0}".format(int_split_lines))
     print("token_stream: {0}".format(token_stream))
     
     return token_stream
