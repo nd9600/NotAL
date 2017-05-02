@@ -97,6 +97,11 @@ def lex(input_file):
     #strip newlines from the end of lines
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
     
+    #removes comments
+    for index, line in enumerate(stripped_lines):
+        if (line.find("#") != -1):
+            stripped_lines[index] = line[:line.find("#")].strip(" ")
+    
     #remove blank lines
     non_blank_lines = [line for line in stripped_lines[:] if (len(line) > 0)]
     
@@ -106,7 +111,7 @@ def lex(input_file):
     print("\nlexing")
     print("original_lines: {0}".format(original_lines))
     print("stripped_lines: {0}".format(stripped_lines))
-    print("non_blank: {0}".format(non_blank_lines))
+    print("non_blank_lines: {0}".format(non_blank_lines))
     print("token_stream: {0}".format(token_stream))
     
     return token_stream
