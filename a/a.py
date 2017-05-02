@@ -141,6 +141,8 @@ def run(memory):
             if ((memory[b] <= 0) and (c != -1)):
                 pc = c
             else:
+                if (c == -2):
+                    break
                 pc = pc + 3
         except IndexError:
             break
