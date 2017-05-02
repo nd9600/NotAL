@@ -50,7 +50,7 @@ def generate_token_stream(lines):
             label_table[label] = currentPosition
             
             #if the label definition has data, it is a variable
-            #otherwise, it's just a position
+            #otherwise, it's just a position, and we don't need to do anything
             if (len(label_info) > 1):
                 label_data = label_info[1].strip(" ")
                 
@@ -64,10 +64,10 @@ def generate_token_stream(lines):
         else:
             split_line = line.strip(" ").split(" ")
             for item in split_line:
-                try: 
+                try: #item is a number, add to token stream
                     tokens.append(int(item))
                     currentPosition = currentPosition + 1 
-                except ValueError: # is a label, put currentPosition in patching_dict
+                except ValueError: #item is a label, put currentPosition in patching_dict
                     tokens.append(0)
                     patching_dict[currentPosition] = item
                     currentPosition = currentPosition + 1  
@@ -102,7 +102,6 @@ def lex(input_file):
     
     return token_stream
     
-    
 # ? ; next line
 # a ; same as a a ?
 # a b ; same as a b ?
@@ -112,10 +111,9 @@ def run(memory):
     
     pc = 0;
     while (pc < len(memory)):
-        line = memory[pc]
-        number_of_tokens = len(line)
-        
-        a = line[0]
+        a = memory[pc]
+        b = memory[pc+1]
+        c = memory[pc+2]
         
         if number_of_tokens >= 2:
             b = line[1]
@@ -145,7 +143,7 @@ def run(memory):
 def execute_file(file_name):
     with open(file_name, 'r') as input_file:
         token_stream = lex(input_file)
-        #run(token_stream)      
+        run(token_stream)      
         
 if len(argv) > 1:
     execute_file(argv[1])
