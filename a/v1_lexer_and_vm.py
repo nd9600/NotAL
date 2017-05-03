@@ -94,13 +94,13 @@ def generate_token_stream(lines):
 def lex(input_file):
     original_lines = input_file.readlines()
     
+    #removes comments
+    for index, line in enumerate(original_lines):
+        if (line.find("#") != -1):
+            original_lines_lines[index] = line[:line.find("#")].strip(" ")
+    
     #strip newlines from the end of lines
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
-    
-    #removes comments
-    for index, line in enumerate(stripped_lines):
-        if (line.find("#") != -1):
-            stripped_lines[index] = line[:line.find("#")].strip(" ")
     
     #remove blank lines
     non_blank_lines = [line for line in stripped_lines[:] if (len(line) > 0)]
@@ -109,32 +109,33 @@ def lex(input_file):
     token_stream = generate_token_stream(non_blank_lines)    
     
     print("\nlexing")
-    print("original_lines: {0}".format(original_lines))
-    print("stripped_lines: {0}".format(stripped_lines))
-    print("non_blank_lines: {0}".format(non_blank_lines))
-    print("token_stream: {0}".format(token_stream))
+    print("\noriginal_lines: {0}".format(original_lines))
+    print("\nstripped_lines: {0}".format(stripped_lines))
+    print("\nnon_blank_lines: {0}".format(non_blank_lines))
+    print("\ntoken_stream: {0}".format(token_stream))
     
     return token_stream
 
 def run(memory):    
-    print("\nrunning")
+    print("\n#####\nrunning")
     print("memory at start: {0}".format(memory))
     
     pc = 0;
     while (pc < len(memory)):
-        raw_input() # used to step through vm like a debugger
+        #raw_input() # used to step through vm like a debugger
         try:
             a = memory[pc]
             b = memory[pc+1]
             c = memory[pc+2]
             
-            print("\na: {0}".format(a))
+            print("\npc: {0}".format(pc))
+            print("a: {0}".format(a))
             print("b: {0}".format(b))
             print("c: {0}".format(c))
             
             #input into a if b == -1
             #output a if b == -2
-            #quit if c < -2
+            #quit if (memory[b] <= 0) and (c < -1)
             if (b == -1):
                 input = raw_input("Input: ")
                 try:
@@ -143,14 +144,17 @@ def run(memory):
                     memory[a] = int(ord(input))
             elif (b == -2):
                 print(memory[a])
-                print(chr(memory[a]))
+                try:
+                    print(chr(memory[a]))
+                except ValueError:
+                    pass
             else:
                 memory[b] = memory[b] - memory[a]
-            if ((memory[b] <= 0) and (c != -1)):
+            if ((memory[b] <= 0) and (c < -1)):
+                if (c < -1):
+                    break
                 pc = c
             else:
-                if (c <= -2):
-                    break
                 pc = pc + 3
         except IndexError:
             break
