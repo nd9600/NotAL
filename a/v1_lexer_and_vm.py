@@ -50,6 +50,7 @@ def generate_token_stream(lines):
             label_table[label] = currentPosition
             
             #if the label definition has data, it is a variable
+            #the data is added to the token stream
             #otherwise, it's just a position, and we don't need to do anything
             if (len(label_info) > 1):
                 label_data = label_info[1].strip(" ")
@@ -57,10 +58,11 @@ def generate_token_stream(lines):
                 try: #label_data is an int 
                     tokens.append(int(label_data))
                     currentPosition = currentPosition + 1 
-                except ValueError: #label_data is a string   
+                except ValueError: #label_data is a string, add ord() of characters to token stream
                     for character in label_data:
                         tokens.append(ord(character))
                         currentPosition = currentPosition + 1 
+        #otherwise add the operands to the token stream
         else:
             split_line = line.strip(" ").split(" ")
             for item in split_line:
@@ -73,10 +75,13 @@ def generate_token_stream(lines):
                     currentPosition = currentPosition + 1
                     
             #for cases where there are only 1 or 2 operands
-            if (len(split_line) < 3):        
+            if (len(split_line) < 3):
+                #make b = a
                 if (len(split_line) == 1):
-                    tokens.append( tokens[(len(tokens) - 1)])
+                    tokens.append( tokens[(len(tokens) - 1)] )
                     currentPosition = currentPosition + 1
+                    
+                #jump to the next instruction
                 tokens.append(-1)
                 currentPosition = currentPosition + 1    
     
