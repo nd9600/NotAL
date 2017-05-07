@@ -102,7 +102,7 @@ def lex(input_file):
     #removes comments
     for index, line in enumerate(original_lines):
         if (line.find("#") != -1):
-            original_lines_lines[index] = line[:line.find("#")].strip(" ")
+            original_lines[index] = line[:line.find("#")].strip(" ")
     
     #strip newlines from the end of lines
     stripped_lines = [line.rstrip('\n').rstrip('\r') for line in original_lines]
@@ -140,7 +140,9 @@ def run(memory):
             
             #input into a if b == -1
             #output a if b == -2
-            #quit if (memory[b] <= 0) and (c < -1)
+            #quit if (c < -1)
+            #jump to c if (memory[b] <= 0) and (c >= 0)
+            
             if (b == -1):
                 input = raw_input("Input: ")
                 try:
@@ -155,9 +157,11 @@ def run(memory):
                     pass
             else:
                 memory[b] = memory[b] - memory[a]
-            if ((memory[b] <= 0) and (c < -1)):
-                if (c < -1):
-                    break
+                
+            if (c < -1):
+                break
+                
+            if (memory[b] <= 0) and (c >= 0):
                 pc = c
             else:
                 pc = pc + 3
