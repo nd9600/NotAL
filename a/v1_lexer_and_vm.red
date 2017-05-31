@@ -98,13 +98,65 @@ parser: func [lines [string!]][
 
 vm: func [memory [block!]][
     probe memory
-    foreach line memory [
-        probe line
+    
+    pc: 0
+    while [lesser? pc length? memory] [        
+        if error? err: try [
+        
+            ; breaks because of rebol's zero indexed arrays
+            a: pick memory add pc 0
+            b: pick memory add pc 1
+            c: pick memory add pc 2
+            
+            print ""
+            print append copy "pc: " pc
+            print append copy "a: " a
+            print append copy "b: " b
+            print append copy "c: " c
+            
+            ;input into a if b == -1
+            ;output a if b == -2
+            ;quit if (c < -1)
+            ;jump to c if (memory[b] <= 0) and (c >= 0)
+            
+            either (equal? b -1) [
+                if error? poke memory a to-int input [
+                    poke memory a to-int to-string input
+                ]
+            ] [
+                either (equal? b -2) [
+                    print pick memory a
+                    attempt print to-string pick memory a
+                ] [
+                    poke memory b subtract pick memory b pick memory a
+                ]
+            ]
+            
+            if (lesser? c -1) [
+                print "c < -1"
+                break
+            ]
+            
+            either ((lesser-or-equal? pick memory b 0) and (greater-or-equal? c 0)) [
+                pc: c                
+            ] [
+                pc: add pc 3
+            ]
+        ] [
+            print append "error: " err
+            break
+        ]
+        
     ]
+    ;]
+    ;}
+    
+    probe memory
 ]
 
-input_code: {Z Z
-.Z:666}
+input_code: {3 4 6
+7 7 7
+0 0 0}
 
 tokens: parser input_code
 vm tokens
