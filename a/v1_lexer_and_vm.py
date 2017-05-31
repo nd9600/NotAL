@@ -133,10 +133,10 @@ def run(memory):
             b = memory[pc+1]
             c = memory[pc+2]
             
-            print("\npc: {0}".format(pc))
-            print("a: {0}".format(a))
-            print("b: {0}".format(b))
-            print("c: {0}".format(c))
+            #print("\npc: {0}".format(pc))
+            #print("a: {0}".format(a))
+            #print("b: {0}".format(b))
+            #print("c: {0}".format(c))
             
             #input into a if b == -1
             #output a if b == -2
