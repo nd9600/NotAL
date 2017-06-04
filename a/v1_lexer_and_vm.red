@@ -118,15 +118,8 @@ parser: func [lines [string!]][
         ]
     ]
     
-    parse lines rules
-    
-    probe label-table
-    probe patching-table
-    
+    parse lines rules  
     foreach key keys-of patching-table [
-        probe key
-        probe memory/(key)
-        probe patching-table/(key)
         poke memory key label-table/(patching-table/(key))
     ]
     
