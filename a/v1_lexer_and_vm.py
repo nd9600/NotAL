@@ -122,26 +122,21 @@ def lex(input_file):
     return token_stream
 
 def run(memory):    
-    print("\n#####\nrunning")
     print("memory at start: {0}".format(memory))
     
     pc = 0;
     while (pc < len(memory)):
-        #raw_input() # used to step through vm like a debugger
+        raw_input() # used to step through vm like a debugger
         try:
             a = memory[pc]
             b = memory[pc+1]
             c = memory[pc+2]
             
-            #print("\npc: {0}".format(pc))
-            #print("a: {0}".format(a))
-            #print("b: {0}".format(b))
-            #print("c: {0}".format(c))
-            
-            #input into a if b == -1
-            #output a if b == -2
-            #quit if (c < -1)
-            #jump to c if (memory[b] <= 0) and (c >= 0)
+            print ""
+            print "pc: ", pc
+            print "a: ", a
+            print "b: ", b
+            print "c: ", c
             
             if (b == -1):
                 input = raw_input("Input: ")

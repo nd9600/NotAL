@@ -175,11 +175,45 @@ vm: func [memory [block!]][
     probe memory
 ]
 
-input_code: {3 4 6
-7 7 7
-0 0 0}
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
-tokens: parser input_code
-vm tokens
-halt
-halt
+reload: does [do system/options/script]
+
+parser-demo: {
+base 200x200 transparent rate 1 now draw [
+    scale 2 2
+    fill-pen #0B79CE pen off
+    circle 50x50 45
+    line-width 2
+    hour: rotate 0 50x50 [pen #023963 line 50x50 50x20]
+    min:  rotate 0 50x50 [pen #023963 line 50x50 50x10]
+    sec:  rotate 0 50x50 [pen #CE0B46 line 50x50 50x10]
+] on-time [
+    time: now/time
+    hour/2: 30 * time/hour
+    min/2:  6  * time/minute
+    sec/2:  6  * time/second
+]
+}
+
+execute-code: func [input_code [string!]][
+    return input_code
+]
+
+system/view/silent?: yes
+
+view [
+	title "Red subleq parser demo"
+	backdrop #2C3339
+	across
+	
+	source: area #13181E 410x300 no-border parser-demo font [
+		name: font-fixed
+		size: 9
+		color: hex-to-rgb #9EBACB
+	]
+	
+	panel 200x300 #2C3339 react [
+		attempt/safer [face/pane: layout/tight/only load source/text]
+	]
+]	
