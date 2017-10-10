@@ -155,8 +155,8 @@ vm: func [memory [block!]][
             print append copy "c: " c
             
             either (equal? b -1) [
-                if error? poke memory a to-int input [
-                    poke memory real_a to-int to-string input
+                if error? poke memory a to-integer input [
+                    poke memory real_a to-integer to-string input
                 ]
             ] [
                 either (equal? b -2) [

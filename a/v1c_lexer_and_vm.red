@@ -160,8 +160,8 @@ vm: func [memory [block!]][
             print append copy "c: " c
             
             either (equal? b -1) [
-                if error? poke memory a to-int input [
-                    poke memory real_a to-int to-string input
+                if error? poke memory a to-integer input [
+                    poke memory real_a to-integer to-string input
                 ]
             ] [
                 either (equal? b -2) [
@@ -218,13 +218,18 @@ view [
 	title "Red subleq parser demo"
 	backdrop #2C3339
     
-    source: area #13181E 410x300 no-border original_code font source_font
+    source: area #13181E 100x300 no-border original_code font source_font
     
     below
     
-    run_button: button black black "Run" [
-        output_field/text: form execute_code source/text
+    run_button: button black "Run" [
+        memory_text: form execute_code source/text
+        memory_field/text: memory_text
+        output_field/text: memory_text
     ]
+    
+    text #2C3339 white "Memory"
+    memory_field: area #13181E 200x100 font source_font
     
     text #2C3339 white "Output"
     output_field: area #13181E 200x200 font source_font
