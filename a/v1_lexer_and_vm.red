@@ -101,7 +101,7 @@ parser: func [lines [string!]][
             two 
             (
                 parse data [thing-with-action space thing-with-action]
-                append memory add length? memory 2
+                append memory add length? memory 1
             )
         |
             copy data 
@@ -113,8 +113,14 @@ parser: func [lines [string!]][
     ]
 
     rules: [
+        any [
+            newline
+        ]
         some [
-            [label | command] opt thru newline
+            [label | command]
+            any [
+                newline
+            ]
         ]
     ]
     
@@ -139,6 +145,9 @@ vm: func [memory [block!]][
             b: pick memory add pc 2
             c: pick memory add pc 3
             
+            real_a: add a 1
+            real_b: add b 1
+            
             print copy ""
             print append copy "pc: " pc
             print append copy "a: " a
@@ -147,14 +156,14 @@ vm: func [memory [block!]][
             
             either (equal? b -1) [
                 if error? poke memory a to-int input [
-                    poke memory (add a 1) to-int to-string input
+                    poke memory real_a to-int to-string input
                 ]
             ] [
                 either (equal? b -2) [
                     print pick memory (add a 1)
                     attempt print to-string pick memory (add a 1)
                 ] [
-                    poke memory (add b 1) subtract pick memory (add b 1) pick memory (add a 1)
+                    poke memory real_b subtract pick memory real_b pick memory real_a
                 ]
             ]
             
@@ -162,7 +171,7 @@ vm: func [memory [block!]][
                 print "c < -1" break
             ]
             
-            either all [ (lesser-or-equal? (pick memory (add b 1)) 0) (greater-or-equal? c 0) ] [
+            either all [ (lesser-or-equal? (pick memory real_b) 0) (greater-or-equal? c 0) ] [
                 pc: c                
             ] [
                 pc: add pc 3
@@ -175,11 +184,15 @@ vm: func [memory [block!]][
     probe memory
 ]
 
-input_code: {3 4 6
-7 7 7
-0 0 0}
+input_code: {
+a Z
+Z b
+Z Z
+
+.Z : 0
+.a : 3
+.b : 4
+}
 
 tokens: parser input_code
 vm tokens
-halt
-halt
