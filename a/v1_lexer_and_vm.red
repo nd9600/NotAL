@@ -62,7 +62,7 @@ parser: func [lines [string!]][
                 
     label-right: [
         copy data 
-        any [":" any space some alphanum] 
+        any [":" any space opt minus some alphanum] 
         (
             label-data: trim pick split data ":" 2
             append memory label-data

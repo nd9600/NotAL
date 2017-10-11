@@ -34,11 +34,7 @@ Z b ; b = a + 0 = a
 Z Z ; Z = 0
 }
 
-apply: func [f block [block!]] [   
-    while [not tail? block] [
-        block: change block f first block 
-    ]   
-]
+do %functional.red
 
 parser: func [lines [string!]][    
     memory: copy []
@@ -64,7 +60,7 @@ parser: func [lines [string!]][
                 
     label-right: [
         copy data 
-        any [":" any space some alphanum] 
+        any [":" any space opt minus some alphanum] 
         (
             label-data: trim pick split data ":" 2
             append memory label-data
@@ -131,15 +127,17 @@ parser: func [lines [string!]][
         poke memory key label-table/(patching-table/(key))
     ]
     
-    apply :to-integer memory
+    memory: f_map lambda [to-integer ?] memory
     memory
 ]
 
 
 vm: func [memory [block!]][
-    probe memory
-    
     pc: 0
+    output: copy []
+    
+    append/only output copy memory
+    
     while [lesser? (add pc 3) length? memory] [
         ;ask ""
         if error? err: try [
@@ -150,14 +148,15 @@ vm: func [memory [block!]][
             real_b: add b 1
             
             if (none? c) [
-                print "c is none" break
+                append output "c is none"
+                break
             ]
             
-            print copy ""
-            print append copy "pc: " pc
-            print append copy "a: " a
-            print append copy "b: " b
-            print append copy "c: " c
+            append output (copy "")
+            append output (append copy "pc: " pc)
+            append output (append copy "a: " a)
+            append output (append copy "b: " b)
+            append output (append copy "c: " c)
             
             either (equal? b -1) [
                 if error? poke memory a to-integer input [
@@ -165,29 +164,37 @@ vm: func [memory [block!]][
                 ]
             ] [
                 either (equal? b -2) [
-                    print pick memory real_a
-                    attempt print to-string pick memory real_a
+                    output_character: to-string pick memory real_a
+                    attempt append output output_character
                 ] [
                     poke memory real_b (subtract (pick memory real_b) (pick memory real_a))
                 ]
             ]
             
             if (lesser? c -1) [
-                print "c < -1" break
+                append output "c < -1"
+                break
             ]
             
-            either all [ (lesser-or-equal? (pick memory real_b) 0) (greater-or-equal? c 0) ] [
+            either all [ 
+            (greater-or-equal? b 0)
+            (lesser-or-equal? (pick memory real_b) 0)
+            (greater-or-equal? c 0) ] [
                 pc: c                
             ] [
                 pc: add pc 3
             ]
         ] [
-            print append "error: " err break
+            append output (append "error: " err)
+            break
         ]
-        probe memory
-        
+        append/only output copy memory
     ]  
-    memory
+    
+    result: make map! []
+    put result 'memory memory
+    put result 'output output
+    result
 ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -202,6 +209,7 @@ execute_code: func [input_code [string!]][
 original_code: {a Z
 Z b
 Z Z
+b -2
 
 .Z : 0
 .a : 3
@@ -217,20 +225,25 @@ source_font: [
 view [
 	title "Red subleq parser demo"
 	backdrop #2C3339
-    
-    source: area #13181E 100x300 no-border original_code font source_font
-    
     below
     
     run_button: button black "Run" [
-        memory_text: form execute_code source/text
-        memory_field/text: memory_text
-        output_field/text: memory_text
+        vm_result: execute_code source/text
+        vm_output: select vm_result 'output
+        vm_memory: select vm_result 'memory
+        
+        formatted_output: form f_map lambda [append ? newline]  vm_output
+        memory_field/text: form vm_memory
+        output_field/text: formatted_output
     ]
+    text #2C3339 white "Source"
+    source: area #13181E 100x300 no-border original_code font source_font
     
-    text #2C3339 white "Memory"
-    memory_field: area #13181E 200x100 font source_font
+    return  
     
+    text #2C3339 white "Memory"    
+    memory_field: area #13181E 300x100 font source_font
+  
     text #2C3339 white "Output"
-    output_field: area #13181E 200x200 font source_font
+    output_field: area #13181E 300x300 font source_font
 ]	
