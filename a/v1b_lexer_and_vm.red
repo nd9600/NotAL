@@ -1,3 +1,0 @@
-Red[] a: func [f b[block!]][while[not tail? b][b: change b f first b] head b] p: func [l [string!]][m: copy [] s: charset " " di: charset "0123456789"     mi: charset "-" n: [some di] a: [n | mi n] t: [a s a s a] tw: [a s a] o: [a] c: [some [copy d t opt thru newline (append m split d s)| copy d tw opt thru newline (append m split d s append m length? m) | copy d o opt thru newline (append/dup m d 2 append m length? m)]] r: [c] parse l r a :to-integer m ] vm: func [m [block!]][ probe m foreach li m [probe li]] t: p {3 4 6
-7 7 7
-0 0 0} vm t
