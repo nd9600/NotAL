@@ -39,8 +39,11 @@ parser: func [lines [string!]][
     label-table: make map! []
     patching-table: make map! []
     
-    space:      charset " "
     minus:      charset "-"
+    hash:       charset "#"
+    semi_colon: charset ";"
+    eol:        [semi_colon | newline]
+    
     digit:      charset "0123456789"
     letters:    charset [#"A" - #"Z" #"a" - #"z" ]
     alphanum:   union letters digit
@@ -48,7 +51,7 @@ parser: func [lines [string!]][
     number:     [some digit]
     address:    [number | minus number]
     variable:   [some alphanum]
-    thing:      [address | variable]
+    location:   [address | variable]
     
     label-left: [
         copy data 
@@ -58,15 +61,15 @@ parser: func [lines [string!]][
                 
     label-right: [
         copy data 
-        any [":" any space opt minus some alphanum] 
+         [":" any space opt minus some alphanum] 
         (
-            label-data: trim pick split data ":" 2
+            label-data: trim (pick split data ":" 2)
             append memory label-data
         )
     ]
     
     label: [
-        any space "." any space label-left any space label-right
+        any space "." any space label-left any space opt label-right
     ]
                 
     thing-with-action: [
@@ -82,10 +85,11 @@ parser: func [lines [string!]][
             )
     ]
     
-    three: [thing space thing space thing]
-    two: [thing space thing]
-    one: [thing]
+    three: [location space location space location]
+    two: [location space location]
+    one: [location]
     
+    ;we need two different matching steps: first is just to match, second is to output the correct instructions
     command: [
             copy data 
             three 
@@ -110,21 +114,20 @@ parser: func [lines [string!]][
 
     rules: [
         any [
-            newline
-        ]
-        some [
-            [label | command]
-            any [
-                newline
-            ]
+                [space | hash thru newline | eol] 
+            |
+                [label | command]
         ]
     ]
     
-    parse lines rules  
+    parse lines rules
+    
+    ;patches in any variables
     foreach key keys-of patching-table [
         poke memory key label-table/(patching-table/(key))
     ]
     
+    ;converts all strings like "1"
     memory: f_map lambda [to-integer ?] memory
     memory
 ]

@@ -12,7 +12,6 @@ execute_code: func [input_code [string!]][
 original_code: {a Z
 Z b
 Z Z
-b -2
 
 .Z : 0
 .a : 3
