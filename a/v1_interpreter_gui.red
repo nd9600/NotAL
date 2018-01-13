@@ -1,12 +1,53 @@
 Red [
-Needs: 'View
+  Needs: 'View
 ]
 
 do %v1_interpreter.red
 
+pprobe: func ['var][probe rejoin [mold/only var ": " do var]]
+
+interpreter: func [memory [block!]][
+    pc: 0
+    output_string: copy []
+    output_memory: copy []
+    
+    steps: 0
+    
+    while [(pc + 3) < (length? memory)] [
+        interpreter_output: step_interpreter memory pc
+        print " "
+        either error? interpreter_output/error [
+            append output_string copy interpreter_output/error
+            break
+        ] [
+            ; we must update these two variables to step throguh the interpreter
+            pc: interpreter_output/pc
+            memory: copy interpreter_output/memory
+            
+            append output_string copy interpreter_output/output_string
+            append/only output_memory memory
+            
+            print "^/#####^/"
+            probe interpreter_output
+            print "^/"
+            pprobe pc
+            probe output_string
+            either steps == 3 [break][steps: steps + 1]
+        ]
+        
+    ]
+    pprobe pc
+    probe output_string
+    probe output_memory
+    return make map! compose/only [
+      output_string: (output_string)
+      output_memory: (output_memory)
+    ]
+]
+
 execute_code: func [input_code [string!]][
     tokens: parser input_code
-    gui_vm tokens
+    interpreter tokens
 ]
 
 original_code: {a Z
@@ -30,12 +71,13 @@ view [
     below
     
     run_button: button black "Run" [
-        vm_result: execute_code source/text
-        vm_output: select vm_result 'output
-        vm_memory: select vm_result 'memory
+        interpreter_result: execute_code source/text
+        output_string: interpreter_result/output_string
+        output_memory: interpreter_result/output_memory
         
-        formatted_output: form f_map lambda [append ? newline]  vm_output
-        memory_field/text: form vm_memory
+        formatted_output: form f_map lambda [append ? newline] output_string
+        formatted_memory: form f_map lambda [append ? newline] output_memory
+        memory_field/text: formatted_memory
         output_field/text: formatted_output
     ]
     text #2C3339 white "Source"
@@ -48,4 +90,4 @@ view [
   
     text #2C3339 white "Output"
     output_field: area #13181E 300x300 font source_font
-]	
+]

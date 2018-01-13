@@ -132,117 +132,66 @@ parser: func [lines [string!]][
     memory
 ]
 
-cli_vm: func [memory [block!]][
-    probe memory
+step_interpreter: func [
+  memory [block!] "the subleq code to execute"
+  pc [integer!] "the current program counter"
+][
+    output_string: copy [] ; each line of output is a new element in the block
     
-    pc: 0
-    while [lesser? pc length? memory] [
-        ask ""
-        if error? err: try [
-            a: pick memory add pc 1
-            b: pick memory add pc 2
-            c: pick memory add pc 3
-            
-            real_a: add a 1
-            real_b: add b 1
-            
-            print copy ""
-            print append copy "pc: " pc
-            print append copy "a: " a
-            print append copy "b: " b
-            print append copy "c: " c
-            
-            either (equal? b -1) [
-                if error? poke memory a to-integer input [
-                    poke memory real_a to-integer to-string input
-                ]
-            ] [
-                either (equal? b -2) [
-                    print pick memory (add a 1)
-                    attempt print to-string pick memory (add a 1)
-                ] [
-                    poke memory real_b subtract pick memory real_b pick memory real_a
-                ]
-            ]
-            
-            if (lesser? c -1) [
-                print "c < -1" break
-            ]
-            
-            either all [ (lesser-or-equal? (pick memory real_b) 0) (greater-or-equal? c 0) ] [
-                pc: c                
-            ] [
-                pc: add pc 3
-            ]
-        ] [
-            print append "error: " err break
+    append/only output_string copy memory
+    
+    ;ask ""
+    ; will exit from the if block if a throw is evaluated
+    err: try [ catch [
+        a: pick memory add pc 1
+        b: pick memory add pc 2
+        c: pick memory add pc 3
+        real_a: add a 1
+        real_b: add b 1
+        
+        if (none? c) [
+            append output_string "c is none"
+            throw "c is none"
         ]
         
-    ]  
-    probe memory
-]
-
-gui_vm: func [memory [block!]][
-    pc: 0
-    output: copy []
-    
-    append/only output copy memory
-    
-    while [lesser? (add pc 3) length? memory] [
-        ;ask ""
-        if error? err: try [
-            a: pick memory add pc 1
-            b: pick memory add pc 2
-            c: pick memory add pc 3
-            real_a: add a 1
-            real_b: add b 1
-            
-            if (none? c) [
-                append output "c is none"
-                break
-            ]
-            
-            append output (copy "")
-            append output (append copy "pc: " pc)
-            append output (append copy "a: " a)
-            append output (append copy "b: " b)
-            append output (append copy "c: " c)
-            
-            either (equal? b -1) [
-                if error? poke memory a to-integer input [
-                    poke memory real_a to-integer to-string input
-                ]
-            ] [
-                either (equal? b -2) [
-                    output_character: to-string pick memory real_a
-                    attempt append output output_character
-                ] [
-                    poke memory real_b (subtract (pick memory real_b) (pick memory real_a))
-                ]
-            ]
-            
-            if (lesser? c -1) [
-                append output "c < -1"
-                break
-            ]
-            
-            either all [ 
-            (greater-or-equal? b 0)
-            (lesser-or-equal? (pick memory real_b) 0)
-            (greater-or-equal? c 0) ] [
-                pc: c                
-            ] [
-                pc: add pc 3
+        append output_string (copy "")
+        append output_string (append copy "pc: " pc)
+        append output_string (append copy "a: " a)
+        append output_string (append copy "b: " b)
+        append output_string (append copy "c: " c)
+        
+        either (equal? b -1) [
+            if error? poke memory a to-integer input [
+                poke memory real_a to-integer to-string input
             ]
         ] [
-            append output (append "error: " err)
-            break
+            either (equal? b -2) [
+                output_character: to-string pick memory real_a
+                attempt append output_string output_character
+            ] [
+                poke memory real_b (subtract (pick memory real_b) (pick memory real_a))
+            ]
         ]
-        append/only output copy memory
-    ]  
+        
+        if (lesser? c -1) [
+            append output_string "c < -1"
+            throw "c < -1"
+        ]
+        
+        either all [ 
+        (greater-or-equal? b 0)
+        (lesser-or-equal? (pick memory real_b) 0)
+        (greater-or-equal? c 0) ] [
+            pc: c                
+        ] [
+            pc: add pc 3
+        ]
+    ]]
     
-    result: make map! []
-    put result 'memory memory
-    put result 'output output
-    result
+    return make map! compose/only [
+      memory: (memory)
+      pc: (pc)
+      output_string: (output_string)
+      error: (err)
+    ]
 ]
