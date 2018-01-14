@@ -2,7 +2,7 @@ Red [
     Title: "Tiny Framework - functional programming functions"
 ]
 
-lambda: func [
+lambda: function [
         "makes lambda functions - https://gist.github.com/draegtun/11b0258377a3b49bfd9dc91c3a1c8c3d"
         block [block!] "the function to make"
     ] [
@@ -31,7 +31,7 @@ lambda: func [
     func spec block
 ]
 
-f_map: func [
+f_map: function [
     "The functional map"
     f  [function!] "the function to use, as a lambda function" 
     block [block!] "the block to map across"
@@ -45,7 +45,7 @@ f_map: func [
     
 ]
 
-f_fold: func [
+f_fold: function [
     "The functional left fold"
     f  [function!] "the function to use, as a lambda function" 
     init [any-type!] "the initial value"
@@ -59,7 +59,7 @@ f_fold: func [
     result
 ]
 
-f_filter: func [
+f_filter: function [
     "The functional filter"
     condition [function!] "the condition to check, as a lambda function" 
     block [block!] "the block to fold"

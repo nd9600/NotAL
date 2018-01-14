@@ -169,7 +169,7 @@ step_interpreter: func [
                 output_character: to-string pick memory real_a
                 attempt append output_string output_character
             ] [
-                poke memory real_b (subtract (pick memory real_b) (pick memory real_a))
+                poke memory real_b ((pick memory real_b) - (pick memory real_a))
             ]
         ]
         
@@ -179,9 +179,9 @@ step_interpreter: func [
         ]
         
         either all [ 
-        (greater-or-equal? b 0)
-        (lesser-or-equal? (pick memory real_b) 0)
-        (greater-or-equal? c 0) ] [
+        (b >= 0)
+        ((pick memory real_b) <= 0)
+        (c >= 0) ] [
             pc: c                
         ] [
             pc: add pc 3

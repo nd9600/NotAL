@@ -3,7 +3,7 @@ Red [
 
 do %v1_interpreter.red
 
-execute_code: func [input_code [string!]][
+execute_code: function [input_code [string!]][
     tokens: parser input_code
     cli_vm tokens
 ]

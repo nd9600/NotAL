@@ -4,12 +4,17 @@ Red [
 
 do %v1_interpreter.red
 
-pprobe: func ['var][probe rejoin [mold/only var ": " do var]]
+pprobe: function ['var][probe rejoin [mold/only var ": " do var]]
 
-interpreter: func [memory [block!]][
+interpreter: function [memory [block!]][
     pc: 0
     output_string: copy []
-    output_memory: copy []
+    output_memory: append/only [] copy memory 
+
+    probe "output_string: " 
+    probe output_string
+    probe memory
+    probe output_memory
     
     steps: 0
     
@@ -20,7 +25,7 @@ interpreter: func [memory [block!]][
             append output_string copy interpreter_output/error
             break
         ] [
-            ; we must update these two variables to step throguh the interpreter
+            ; we must update these two variables to step through the interpreter
             pc: interpreter_output/pc
             memory: copy interpreter_output/memory
             
@@ -32,9 +37,8 @@ interpreter: func [memory [block!]][
             print "^/"
             pprobe pc
             probe output_string
-            either steps == 3 [break][steps: steps + 1]
+            either steps == -1 [break][steps: steps + 1]
         ]
-        
     ]
     pprobe pc
     probe output_string
@@ -45,7 +49,7 @@ interpreter: func [memory [block!]][
     ]
 ]
 
-execute_code: func [input_code [string!]][
+execute_code: function [input_code [string!]][
     tokens: parser input_code
     interpreter tokens
 ]
