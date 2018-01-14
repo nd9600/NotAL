@@ -4,23 +4,13 @@ Red [
 
 do %v1_interpreter.red
 
-pprobe: function ['var][probe rejoin [mold/only var ": " do var]]
-
 interpreter: function [memory [block!]][
     pc: 0
     output_string: copy []
-    output_memory: append/only [] copy memory 
-
-    probe "output_string: " 
-    probe output_string
-    probe memory
-    probe output_memory
-    
-    steps: 0
-    
+    output_memory: append/only [] memory 
+        
     while [(pc + 3) < (length? memory)] [
         interpreter_output: step_interpreter memory pc
-        print " "
         either error? interpreter_output/error [
             append output_string copy interpreter_output/error
             break
@@ -31,18 +21,8 @@ interpreter: function [memory [block!]][
             
             append output_string copy interpreter_output/output_string
             append/only output_memory memory
-            
-            print "^/#####^/"
-            probe interpreter_output
-            print "^/"
-            pprobe pc
-            probe output_string
-            either steps == -1 [break][steps: steps + 1]
         ]
     ]
-    pprobe pc
-    probe output_string
-    probe output_memory
     return make map! compose/only [
       output_string: (output_string)
       output_memory: (output_memory)

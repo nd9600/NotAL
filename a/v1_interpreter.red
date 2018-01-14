@@ -154,7 +154,6 @@ step_interpreter: func [
             throw "c is none"
         ]
         
-        append output_string (copy "")
         append output_string (append copy "pc: " pc)
         append output_string (append copy "a: " a)
         append output_string (append copy "b: " b)
@@ -177,6 +176,8 @@ step_interpreter: func [
             append output_string "c < -1"
             throw "c < -1"
         ]
+        
+        append output_string (copy "")
         
         either all [ 
         (b >= 0)
