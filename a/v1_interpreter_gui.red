@@ -7,7 +7,7 @@ do %v1_interpreter.red
 interpreter: function [memory [block!]][
     pc: 0
     output_string: copy []
-    output_memory: append/only [] memory 
+    output_memory: reduce copy [memory]
         
     while [(pc + 3) < (length? memory)] [
         interpreter_output: step_interpreter memory pc
