@@ -165,23 +165,17 @@ step_interpreter: function [
         append output_string (append copy "a: " a)
         append output_string (append copy "b: " b)
         append output_string (append copy "c: " c)
-        
-        either (b == -1) [
-            if error? memory/(real_a): to-integer input [
-                memory/(real_a): to-integer to-string input
+
+        case [
+            c >= -1 [ memory/(real_b): memory/(real_b) - memory/(real_a) ]
+            c == -1 [ finished: true ]
+            c == -2 [
+                if error? memory/(real_a): to-integer input [
+                    memory/(real_a): to-string input
+                ]
             ]
-        ] [
-            either (b == -2) [
-                output_character: to-string pick memory real_a
-                attempt append output_string output_character
-            ] [
-                memory/(real_b): memory/(real_b) - memory/(real_a)
-            ]
-        ]
-        
-        if (c < -1) [
-            append output_string "c < -1"
-            throw "c < -1"
+            c == -3 [ attempt append output_string to-string memory/(real_a) ]
+            true    [ append output_string "c < -3"  throw "c < -3" ]
         ]
         
         append output_string (copy "")
@@ -198,7 +192,8 @@ step_interpreter: function [
     ]] [
         finished: true
     ] [
-        finished: (pc + 3) >= (length? memory)
+        finished: finished or (pc + 3) >= (length? memory)
+    ]
     
     return make map! compose/only [
       finished: (finished)
