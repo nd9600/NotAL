@@ -206,7 +206,7 @@ step_interpreter: function [
 
 interpreter: function [
     subleq_code [block!]
-    /with "evaluate the interpreter_output map"
+    /with "evaluate the interpreter_result map"
     f [function!] "the function to run on the interpreter output"
 ][
     pc: 0
@@ -216,19 +216,19 @@ interpreter: function [
     finished: false
         
     while [not finished] [
-        interpreter_output: step_interpreter memory pc
-        either error? interpreter_output/error [
-            append output_string copy interpreter_output/error
+        interpreter_result: step_interpreter memory pc
+        either error? interpreter_result/error [
+            append output_string copy interpreter_result/error
             break
         ] [
             ; we must update these variables to step through the interpreter
-            finished: interpreter_output/finished
-            pc: interpreter_output/pc
-            memory: copy interpreter_output/memory
+            finished: interpreter_result/finished
+            pc: interpreter_result/pc
+            memory: copy interpreter_result/memory
             
-            append output_string copy interpreter_output/output_string
+            append output_string copy interpreter_result/output_string
             append/only output_memory memory
-            if with [f interpreter_output]
+            if with [f interpreter_result]
         ]
     ]
     return make map! compose/only [
@@ -238,8 +238,11 @@ interpreter: function [
     ]
 ]
 
-execute_code: function [input_code [string!]][
+execute_code: function [
+    input_code [string!]
+    /with "evaluate the interpreter_result map"
+    f [function!] "the function to run on the interpreter output"
+][
     subleq_code: parser input_code
-    ;interpreter/with subleq_code function [result] [probe result]
-    interpreter subleq_code
+    either with [interpreter/with subleq_code :f] [interpreter subleq_code]
 ]

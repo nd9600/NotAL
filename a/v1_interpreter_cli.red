@@ -3,12 +3,7 @@ Red [
 
 do %v1_interpreter.red
 
-execute_code: function [input_code [string!]][
-    tokens: parser input_code
-    cli_vm tokens
-]
-
-input_code: {
+adding_test: copy {
 a Z
 Z b
 Z Z
@@ -18,5 +13,14 @@ Z Z
 .b : 4
 }
 
-tokens: parser input_code
-cli_vm tokens
+input_code: copy input_code
+
+adding_test_interpreter_result: execute_code adding_test
+tests_passed: all [
+    assert [adding_test_interpreter_result/subleq_code == [10 9 3 9 11 6 9 9 9 0 3 4]]
+]
+
+if tests_passed [
+    ;execute_code/with input_code function [result] [probe result]
+    interpreter_result: execute_code input_code
+]
