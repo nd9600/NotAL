@@ -28,7 +28,7 @@ lambda: function [
         do make error! {cannot match ? with ?name placeholders}
     ]
 
-    func spec block
+    function spec block
 ]
 
 f_map: function [

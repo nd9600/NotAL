@@ -30,8 +30,8 @@ interpreter: function [memory [block!]][
 ]
 
 execute_code: function [input_code [string!]][
-    tokens: parser input_code
-    interpreter tokens
+    memory: parser input_code
+    interpreter memory
 ]
 
 original_code: {a Z

@@ -34,7 +34,7 @@ Z Z ; Z = 0
 
 do %functional.red
 
-parser: func [lines [string!]][    
+parser: function [lines [string!]][    
     memory: copy []
     label-table: make map! []
     patching-table: make map! []
@@ -132,7 +132,7 @@ parser: func [lines [string!]][
     memory
 ]
 
-step_interpreter: func [
+step_interpreter: function [
   memory [block!] "the subleq code to execute"
   pc [integer!] "the current program counter"
 ][
@@ -159,20 +159,20 @@ step_interpreter: func [
         append output_string (append copy "b: " b)
         append output_string (append copy "c: " c)
         
-        either (equal? b -1) [
-            if error? poke memory a to-integer input [
-                poke memory real_a to-integer to-string input
+        either (b == -1) [
+            if error? memory/(real_a): to-integer input [
+                memory/(real_a): to-integer to-string input
             ]
         ] [
-            either (equal? b -2) [
+            either (b == -2) [
                 output_character: to-string pick memory real_a
                 attempt append output_string output_character
             ] [
-                poke memory real_b ((pick memory real_b) - (pick memory real_a))
+                memory/(real_b): memory/(real_b) - memory/(real_a)
             ]
         ]
         
-        if (lesser? c -1) [
+        if (c < -1) [
             append output_string "c < -1"
             throw "c < -1"
         ]
@@ -180,9 +180,9 @@ step_interpreter: func [
         append output_string (copy "")
         
         either all [ 
-        (b >= 0)
-        ((pick memory real_b) <= 0)
-        (c >= 0) ] [
+        b >= 0
+        memory/(real_b) <= 0
+        c >= 0 ] [
             pc: c                
         ] [
             pc: add pc 3
