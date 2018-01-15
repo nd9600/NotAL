@@ -33,7 +33,7 @@ Z Z ; Z = 0
 }
 
 do %functional.red
-do %testing.red
+do %testing_interpreter.red
 
 low_level_parser: function [lines [string!]][    
     memory: copy []
