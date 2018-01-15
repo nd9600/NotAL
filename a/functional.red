@@ -1,5 +1,5 @@
 Red [
-    Title: "Tiny Framework - functional programming functions"
+    Title: "Subleq interpreter - functional programming functions"
 ]
 
 lambda: function [

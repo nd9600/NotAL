@@ -20,12 +20,12 @@ a a
 jmp c
 Z Z c ; 0-0=0, jmp c
 
-add a, b
+add a, b (b: a + b)
 a Z ; Z = Z - a = -a
 Z b ; b = b - z = b - -a = b + a
 Z Z ; Z = Z - Z = 0
 
-mov a, b
+mov a, b (b: a)
 b b ; b = 0
 a Z ; Z = -a
 Z b ; b = a + 0 = a
@@ -33,11 +33,7 @@ Z Z ; Z = 0
 }
 
 do %functional.red
-
-parser: function [lines [string!]][
-] [
- low_level_parser lines
-]
+do %testing.red
 
 low_level_parser: function [lines [string!]][    
     memory: copy []
@@ -137,6 +133,10 @@ low_level_parser: function [lines [string!]][
     memory
 ]
 
+parser: function [lines [string!]][
+    subleq_code: low_level_parser lines
+]
+
 step_interpreter: function [
   memory [block!] "the subleq code to execute"
   pc [integer!] "the current program counter"
@@ -192,7 +192,7 @@ step_interpreter: function [
     ]] [
         finished: true
     ] [
-        finished: finished or (pc + 3) >= (length? memory)
+        finished: finished or (pc + 3 >= length? memory)
     ]
     
     return make map! compose/only [
@@ -202,4 +202,44 @@ step_interpreter: function [
       output_string: (output_string)
       error: (err)
     ]
+]
+
+interpreter: function [
+    subleq_code [block!]
+    /with "evaluate the interpreter_output map"
+    f [function!] "the function to run on the interpreter output"
+][
+    pc: 0
+    memory: copy subleq_code
+    output_string: copy []
+    output_memory: reduce copy [memory]
+    finished: false
+        
+    while [not finished] [
+        interpreter_output: step_interpreter memory pc
+        either error? interpreter_output/error [
+            append output_string copy interpreter_output/error
+            break
+        ] [
+            ; we must update these variables to step through the interpreter
+            finished: interpreter_output/finished
+            pc: interpreter_output/pc
+            memory: copy interpreter_output/memory
+            
+            append output_string copy interpreter_output/output_string
+            append/only output_memory memory
+            if with [f interpreter_output]
+        ]
+    ]
+    return make map! compose/only [
+        subleq_code: (subleq_code)
+        output_string: (output_string)
+        output_memory: (output_memory)
+    ]
+]
+
+execute_code: function [input_code [string!]][
+    subleq_code: parser input_code
+    ;interpreter/with subleq_code function [result] [probe result]
+    interpreter subleq_code
 ]
