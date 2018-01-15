@@ -34,7 +34,12 @@ Z Z ; Z = 0
 
 do %functional.red
 
-parser: function [lines [string!]][    
+parser: function [lines [string!]][
+] [
+ low_level_parser lines
+]
+
+low_level_parser: function [lines [string!]][    
     memory: copy []
     label-table: make map! []
     patching-table: make map! []
@@ -137,12 +142,14 @@ step_interpreter: function [
   pc [integer!] "the current program counter"
 ][
     output_string: copy [] ; each line of output is a new element in the block
+    finished: false
     
     append/only output_string copy memory
     
     ;ask ""
     ; will exit from the if block if a throw is evaluated
-    err: try [ catch [
+    ; interpretation is finished if an error is thrown or we are at the end of the memory
+    either error? err: try [ catch [
         a: pick memory add pc 1
         b: pick memory add pc 2
         c: pick memory add pc 3
@@ -180,16 +187,21 @@ step_interpreter: function [
         append output_string (copy "")
         
         either all [ 
-        b >= 0
-        memory/(real_b) <= 0
-        c >= 0 ] [
+            b >= 0
+            memory/(real_b) <= 0
+            c >= 0 
+        ] [
             pc: c                
         ] [
             pc: add pc 3
         ]
-    ]]
+    ]] [
+        finished: true
+    ] [
+        finished: (pc + 3) >= (length? memory)
     
     return make map! compose/only [
+      finished: (finished)
       memory: (memory)
       pc: (pc)
       output_string: (output_string)
