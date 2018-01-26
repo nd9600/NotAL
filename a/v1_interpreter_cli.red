@@ -13,5 +13,8 @@ Z Z
 .b : 4
 }
 
-;execute_code/with input_code function [result] [probe result]
-interpreter_result: execute_code input_code
+either true [
+    execute_code/with input_code function [result] [print result/output_string]
+] [
+    interpreter_result: execute_code input_code
+]

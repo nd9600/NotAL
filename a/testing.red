@@ -6,6 +6,6 @@ assert: function [
 ] [
     any [
         all conditions
-        do make error! rejoin ["assertion failed for: " mold conditions ", conditions: [" compose/only conditions "]"]
+        do make error! print rejoin ["assertion failed for: " mold/only conditions "," newline "conditions: [" compose/only conditions "]"]
     ]
 ]
